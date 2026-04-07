@@ -4,7 +4,7 @@ import { isAdmin } from "../middlewares/admin.middleware.js";
 
 const router = Router();
 
-// Protect all admin routes with authentication and admin check
+
 router.use(authMiddleware);
 router.use(isAdmin);
 

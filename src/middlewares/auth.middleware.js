@@ -53,7 +53,7 @@ export const authMiddleware = (req, res, next) => {
             return res.status(401).json({ 
                 message: 'Invalid token',
                 details: verifyError.message,
-                receivedToken: token.substring(0, 10) + '...' // Show first 10 chars of token for debugging
+                receivedToken: token.substring(0, 10) + '...'
             });
         }
     } catch (error) {

@@ -36,4 +36,5 @@ router.post("/login", loginLimiter, loginUser);
 router.post("/logout", authMiddleware, logout);
 router.get("/user/:Flat_no", authMiddleware, getUser);
 
+
 export default router;

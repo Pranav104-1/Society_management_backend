@@ -2,7 +2,6 @@ import { User } from "../models/auth/user.models.js";
 import bcrypt from "bcryptjs";
 import { generateToken } from "../utils/jwt.js";
 
-
 export const createUser = async (req, res) => {
   const { username, email, password, Flat_no } = req.body;
   console.log(req.body);
@@ -13,10 +12,7 @@ export const createUser = async (req, res) => {
 
     // Prevent duplicates by either email OR Flat_no
     const existingUser = await User.findOne({
-      $or: [
-        { email: email },
-        { Flat_no: Flat_no }
-      ]
+      $or: [{ email: email }, { Flat_no: Flat_no }],
     });
     if (existingUser) {
       return res.status(409).json({ message: "User already exists" });
@@ -66,7 +62,7 @@ export const loginUser = async (req, res) => {
       await user.save();
 
       const token = generateToken(user);
-      
+
       // Set cookie with token
       res.cookie("token", token, {
         httpOnly: true,
@@ -75,30 +71,21 @@ export const loginUser = async (req, res) => {
         maxAge: 24 * 60 * 60 * 1000, // 1 day
       });
 
-      // Send token in response body
-      res.status(200).json({ 
+      res.status(200).json({
         message: "Login successful",
-        token,
+
         user: {
           id: user._id,
           username: user.username,
           email: user.email,
-          Flat_no: user.Flat_no
+          Flat_no: user.Flat_no,
         },
-        // Add Postman test script
-        postmanScript: `
-        pm.test("Login Successful", function() {
-          pm.response.to.have.status(200);
-          var jsonData = pm.response.json();
-          pm.environment.set("token", jsonData.token);
-        });
-        `
       });
     } catch (error) {
-      console.error('Token Generation Error:', error);
-      return res.status(500).json({ 
+      console.error("Token Generation Error:", error);
+      return res.status(500).json({
         message: "Error generating authentication token",
-        error: error.message 
+        error: error.message,
       });
     }
   } catch (error) {
@@ -120,13 +107,15 @@ export const logout = async (req, res) => {
     // Update user's last activity
     if (req.user && req.user.id) {
       await User.findByIdAndUpdate(req.user.id, {
-        $set: { lastLogout: new Date() }
+        $set: { lastLogout: new Date() },
       });
     }
 
     res.status(200).json({ message: "Logout successful" });
   } catch (error) {
-    res.status(500).json({ message: "Error during logout", error: error.message });
+    res
+      .status(500)
+      .json({ message: "Error during logout", error: error.message });
   }
 };
 
@@ -144,6 +133,47 @@ export const getUser = async (req, res) => {
     res.status(200).json(user);
   } catch (error) {
     res.status(500).json({ message: "Server error", error: error.message });
+  }
+};
+
+export const updateUser = async (res, req) => {
+  const { username, email, password } = req.body;
+  if (!username || !email || !password) {
+    return res.status(400).json({ message: "All fields are required" });
+  }
+  const existingUser = await User.findOne({
+    $or: [{ email: email }, { Flat_no: Flat_no }, { username: username }],
+  });
+  if (existingUser) {
+    return res.status(409).json({ message: "User already exists" });
+  }
+
+  try {
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    const updatedUser = await User.findByIdAndUpdate(
+      req.user.id,
+      {
+        username,
+        email,
+        password: hashedPassword,
+      },
+      { new: true },
+    ).select("-password");
+    if (!updatedUser) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    res.status(200).json({
+      message: "User updated successfully",
+      user: updatedUser,
+    });
+
+  } catch (error) {
+    return res.status(500).json({
+      message: "Error updating user",
+      error: error.message,
+    });
   }
 };
 
