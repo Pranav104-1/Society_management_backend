@@ -177,3 +177,21 @@ export const updateUser = async (req, res) => {
   }
 };
 
+//login via email and otp
+
+export const LoginWithOtp = async(req,res)=>{
+  const{email,userotp} = req.body
+  if(!email || !userotp){
+    return res.status(400).json({message:"Email and OTP are required"})
+  }
+  try{
+    const serverotp = Math.floor(100000 + Math.random() * 900000).toString();
+    
+    if(userotp !== serverotp){
+      return res.status(401).json({message:"Invalid OTP"})
+    }
+  }
+  catch{
+
+  }
+}

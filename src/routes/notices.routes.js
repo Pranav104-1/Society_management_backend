@@ -13,7 +13,6 @@ import rateLimit from 'express-rate-limit';
 
 const router = Router();
 
-// Rate limiting for file uploads
 const uploadLimiter = rateLimit({
     windowMs: 15 * 60 * 1000, // 15 minutes
     max: 10, // Limit each IP to 10 uploads per windowMs
