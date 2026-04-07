@@ -3,7 +3,7 @@ import dotenv from 'dotenv'
 
 dotenv.config()
 
-export const sendVerficatonemail = async ({ to, subject = 'Verify your email', text, html }) => {
+export const sendVerificationEmail = async ({ to, subject = 'Verify your email', text, html }) => {
   if (!to) throw new Error('Missing recipient email')
   const transporter = nodemailer.createTransport({
     host: process.env.SMTP_HOST || 'smtp.gmail.com',

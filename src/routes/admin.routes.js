@@ -1,6 +1,8 @@
 import { Router } from "express";
 import { authMiddleware } from "../middlewares/auth.middleware.js";
 import { isAdmin } from "../middlewares/admin.middleware.js";
+import { User } from "../models/auth/user.models.js";
+import { Complaint } from "../models/societyM/complaint.models.js";
 
 const router = Router();
 
@@ -79,14 +81,6 @@ router.delete("/users/:userId", async (req, res) => {
   }
 });
 
-router.get("/complaints", async (req, res) => {
-  try {
-    const complaints = await Complaint.find();
-    return res.status(200).json(complaints);
-  } catch (error) {
-    return res.status(500).json({ message: "Internal server error" });
-  }
-});
 router.put("/complaints/status", async (req, res) => {
   const { complaintId, status } = req.body;
   if (!complaintId || !status) {

@@ -136,13 +136,13 @@ export const getUser = async (req, res) => {
   }
 };
 
-export const updateUser = async (res, req) => {
+export const updateUser = async (req, res) => {
   const { username, email, password } = req.body;
   if (!username || !email || !password) {
     return res.status(400).json({ message: "All fields are required" });
   }
   const existingUser = await User.findOne({
-    $or: [{ email: email }, { Flat_no: Flat_no }, { username: username }],
+    $or: [{ email: email }, { username: username }],
   });
   if (existingUser) {
     return res.status(409).json({ message: "User already exists" });

@@ -7,7 +7,7 @@ import {
     deleteNotice 
 } from '../controllers/notices.controllers.js';
 import { authMiddleware } from '../middlewares/auth.middleware.js';
-import { adminMiddleware } from '../middlewares/admin.middleware.js';
+import { isAdmin } from '../middlewares/admin.middleware.js';
 import upload from '../middlewares/upload.middleware.js';
 import rateLimit from 'express-rate-limit';
 
@@ -38,7 +38,7 @@ router.get('/:id', getNoticeById);
 router.delete('/:id', deleteNotice);
 
 // Admin only routes
-router.use(adminMiddleware);
+router.use(isAdmin);
 router.delete('/admin/bulk-delete', async (req, res, next) => {
     try {
         const { ids } = req.body;
