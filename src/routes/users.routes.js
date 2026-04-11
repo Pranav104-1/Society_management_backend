@@ -4,6 +4,10 @@ import {
   loginUser,
   logout,
   getUser,
+  registerWithOTP,
+  requestOTP,
+  verifyOTPLogin,
+  resendOTP,
 } from "../controllers/users.controllers.js";
 import rateLimit from "express-rate-limit";
 import { authMiddleware } from "../middlewares/auth.middleware.js";
@@ -28,13 +32,29 @@ const loginLimiter = rateLimit({
   },
 });
 
-// Public routes
+const otpLimiter = rateLimit({
+  windowMs: 5 * 60 * 1000, // 5 minutes
+  max: 5, // Limit each IP to 5 requests per windowMs
+  message: {
+    status: "error",
+    message: "Too many OTP requests. Please try again later.",
+  },
+});
+
+router.post("/register-otp", registerLimiter, registerWithOTP);
+
+router.post("/request-otp", otpLimiter, requestOTP);
+
+router.post("/verify-otp", loginLimiter, verifyOTPLogin);
+
+router.post("/resend-otp", otpLimiter, resendOTP);
+
 router.post("/register", registerLimiter, createUser);
+
 router.post("/login", loginLimiter, loginUser);
 
-// Protected routes
 router.post("/logout", authMiddleware, logout);
-router.get("/user/:Flat_no", authMiddleware, getUser);
 
+router.get("/user/:Flat_no", authMiddleware, getUser);
 
 export default router;

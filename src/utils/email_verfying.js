@@ -1,19 +1,30 @@
-import nodemailer from 'nodemailer'
-import dotenv from 'dotenv'
+import nodemailer from "nodemailer";
+import dotenv from "dotenv";
 
-dotenv.config()
+dotenv.config();
 
-export const sendVerificationEmail = async ({ to, subject = 'Verify your email', text, html }) => {
-  if (!to) throw new Error('Missing recipient email')
-  const transporter = nodemailer.createTransport({
-    host: process.env.SMTP_HOST || 'smtp.gmail.com',
+/**
+ * Create and return SMTP transporter configuration
+ */
+const getTransporter = () => {
+  return nodemailer.createTransport({
+    host: process.env.SMTP_HOST || "smtp.gmail.com",
     port: Number(process.env.SMTP_PORT) || 587,
-    secure: false,
+    secure: process.env.SMTP_SECURE === "true" || false,
     auth: {
       user: process.env.GMAIL_USER,
       pass: process.env.GMAIL_PASS,
     },
-  })
+  });
+};
+
+/**
+ * Generic email sending function
+ */
+const sendEmail = async ({ to, subject, text, html }) => {
+  if (!to) throw new Error("Missing recipient email");
+
+  const transporter = getTransporter();
 
   const mail = await transporter.sendMail({
     from: process.env.MAIL_FROM || process.env.GMAIL_USER,
@@ -21,30 +32,43 @@ export const sendVerificationEmail = async ({ to, subject = 'Verify your email',
     subject,
     text,
     html,
-  })
+  });
 
-  return mail
-}
+  return mail;
+};
 
+/**
+ * Send verification email
+ */
+export const sendVerificationEmail = async ({
+  to,
+  subject = "Verify your email",
+  text,
+  html,
+}) => {
+  return await sendEmail({ to, subject, text, html });
+};
 
-export const sendoptemail = async({ to, subject = 'Your OTP Code', text, html }) => {
-  if (!to) throw new Error('Missing recipient email')
-  const transporter = nodemailer.createTransport({
-    host: process.env.SMTP_HOST || 'smtp.gmail.com',
-    port: Number(process.env.SMTP_PORT) || 587,
-    secure: false,
-    auth: {
-      user: process.env.GMAIL_USER,
-      pass: process.env.GMAIL_PASS,
-    },
-  })
+/**
+ * Send OTP email
+ */
+export const sendOTPEmail = async ({
+  to,
+  subject = "Your OTP Code",
+  text,
+  html,
+}) => {
+  return await sendEmail({ to, subject, text, html });
+};
 
-  const mail = await transporter.sendMail({
-    from: process.env.MAIL_FROM || process.env.GMAIL_USER,
-    to,
-    subject,
-    text,
-    html,
-  })
-  return mail
-}
+/**
+ * Backward compatibility
+ */
+export const sendoptemail = async ({
+  to,
+  subject = "Your OTP Code",
+  text,
+  html,
+}) => {
+  return await sendOTPEmail({ to, subject, text, html });
+};
