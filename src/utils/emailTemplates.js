@@ -1,6 +1,3 @@
-/**
- * Email template functions for OTP-based authentication
- */
 
 /**
  * OTP verification email template

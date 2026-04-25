@@ -9,13 +9,14 @@ import {
 import { authMiddleware } from "../middlewares/auth.middleware.js";
 import { isAdmin } from "../middlewares/admin.middleware.js";
 import upload from "../middlewares/upload.middleware.js";
+import { Notice } from "../models/societyM/notices.models.js";
 import rateLimit from "express-rate-limit";
 
 const router = Router();
 
 const uploadLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 10, // Limit each IP to 10 uploads per windowMs
+  windowMs: 15 * 60 * 1000, 
+  max: 10, 
   message: {
     status: "error",
     message: "Too many uploads. Please try again later.",
@@ -23,12 +24,12 @@ const uploadLimiter = rateLimit({
 });
 
 // Public routes
-router.get("/", getNotices); // Allow public access to notices
+router.get("/", getNotices); 
 
-// Protected routes - require authentication
+
 router.use(authMiddleware);
 
-// Routes with file upload
+
 router.post(
   "/create",
   uploadLimiter,

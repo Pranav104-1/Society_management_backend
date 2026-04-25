@@ -6,6 +6,7 @@ import { connectdb } from "./src/db/connect.js";
 import usersRouter from "./src/routes/users.routes.js";
 import adminRouter from "./src/routes/admin.routes.js";
 import complaintRouter from "./src/routes/complaint.routes.js";
+import noticesRouter from "./src/routes/notices.routes.js";
 import { errorHandler } from "./src/middlewares/error.middleware.js";
 import helmet from "helmet";
 
@@ -18,8 +19,22 @@ app.use(express.json());
 app.use(cookieParser());
 app.use(
   cors({
-    origin: "*",
-    credentials: true
+    origin: (origin, callback) => {
+      const allowedOrigins = (
+        process.env.CORS_ORIGINS || "http://localhost:5173"
+      )
+        .split(",")
+        .map((value) => value.trim())
+        .filter(Boolean);
+      if (!origin) return callback(null, true);
+
+      if (allowedOrigins.includes(origin)) {
+        return callback(null, true);
+      }
+
+      return callback(new Error("Not allowed by CORS"));
+    },
+    credentials: true,
   }),
 );
 
@@ -37,6 +52,7 @@ const PORT = process.env.PORT || 5000;
 app.use("/api/users", usersRouter);
 app.use("/api/admin", adminRouter);
 app.use("/api/complaints", complaintRouter);
+app.use("/api/notices", noticesRouter);
 
 app.use(errorHandler);
 

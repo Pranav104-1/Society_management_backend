@@ -16,12 +16,14 @@ const router = Router();
 // User routes
 router.post('/create', authMiddleware, createComplaint);
 router.get('/my-complaints', authMiddleware, getAllComplaints);
+
+// Admin routes (place static paths before dynamic :id paths)
+router.get('/all', [authMiddleware, isAdmin], getAllComplaints);
+
 router.get('/:id', authMiddleware, getComplaintById);
 router.post('/:id/comment', authMiddleware, addComment);
 router.put('/:id', authMiddleware, updateComplaint);
 
-// Admin routes
-router.get('/all', [authMiddleware, isAdmin], getAllComplaints);
 router.put('/:id/status', [authMiddleware, isAdmin], updateStatus);
 router.delete('/:id', [authMiddleware, isAdmin], deleteComplaint);
 

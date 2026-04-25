@@ -13,21 +13,16 @@ export const authMiddleware = (req, res, next) => {
         if (authHeader) {
             if (authHeader.startsWith('Bearer ')) {
                 token = authHeader.substring(7).trim();
-                console.log('Token from Authorization:', token);
-            } else {
-                console.log('Authorization header does not start with Bearer');
             }
         }
         
         // 2. If no token in header, try cookie
         if (!token && req.cookies) {
             token = req.cookies.token;
-            console.log('Token from Cookie:', token);
         }
 
         // 3. Check if we have a token
         if (!token) {
-            console.log('No token found in request');
             return res.status(401).json({ 
                 message: 'Authentication required',
                 details: 'No token found in request. Please log in.'
@@ -45,15 +40,13 @@ export const authMiddleware = (req, res, next) => {
 
         try {
             const decoded = jwt.verify(token, process.env.JWT_SECRET);
-            console.log('Decoded token:', decoded);
             req.user = decoded;
             next();
         } catch (verifyError) {
             console.error('Token Verification Error:', verifyError);
             return res.status(401).json({ 
                 message: 'Invalid token',
-                details: verifyError.message,
-                receivedToken: token.substring(0, 10) + '...'
+                details: verifyError.message
             });
         }
     } catch (error) {
